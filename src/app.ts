@@ -1,15 +1,16 @@
-import express from "express";
-import userController from "./controllers/userController";
+import { PrismaClient } from '@prisma/client'
+import express from 'express'
 
+const prisma = new PrismaClient()
+const app = express()
 
-const app = express();
-app.use(express.json());
+app.use(express.json())
 
-app.use("/users", userController);
+app.get('/users', async (req, res) => {
+  const users = await prisma.user.findMany()
+  res.json(users)
+})
 
-app.get("/", (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("hello express\n");
-  });
-
-  export default app;
+app.listen(3000, () =>
+  console.log('REST API server ready at: http://localhost:3000'),
+)
