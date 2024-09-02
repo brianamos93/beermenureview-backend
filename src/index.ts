@@ -9,27 +9,30 @@ app.use(express.json())
 app.post(`/signup`, async (req, res) => {
   const { name, email } = req.body
 
+  try {
+    const result = await prisma.user.create({
+      data: {
+        name,
+        email,
+      },
+    })
+    res.json(result)
+  } catch (error) {
+    res.send("error")
+  }
 
-  const result = await prisma.user.create({
-    data: {
-      name,
-      email,
-    },
-  })
-  res.json(result)
 })
 
 app.get('/users', async (req, res) => {
-  const users = await prisma.user.findMany()
-  res.json(users)
+  try {
+    const users = await prisma.user.findMany()
+    res.json(users)
+  } catch (error) {
+    res.send("error")
+  }
+
 })
 
-app.post('/user', async (req, res) => {
-  const result = await prisma.user.create({
-    data: { ...req.body },
-  })
-  res.json(result)
-})
 
 app.get('/beer/feed', async (req, res) => {
   const beers = await prisma.beer.findMany({
@@ -40,27 +43,39 @@ app.get('/beer/feed', async (req, res) => {
 })
 
 app.get(`/beer/:id`, async (req, res) => {
-  const { id } = req.params
-  const beer = await prisma.beer.findUnique({
-    where: { id: String(id) },
-  })
-  res.json(beer)
+
+  try {
+    const { id } = req.params
+    const beer = await prisma.beer.findUnique({
+      where: { id: String(id) },
+    })
+    res.json(beer)
+  } catch (error) {
+    res.send("error")
+  }
+
 })
 
 app.post(`/beer`, async ( req, res) => {
   const { name, description, origin, abv, ibu, authorId } = req.body
-  const result = await prisma.beer.create({
-    data: {
-      name,
-      description,
-      origin,
-      abv,
-      ibu,
-      published: false,
-      author: { connect: { id: authorId}},
-    }
-  })
-  res.json(result)
+
+  try {
+    const result = await prisma.beer.create({
+      data: {
+        name,
+        description,
+        origin,
+        abv,
+        ibu,
+        published: false,
+        author: { connect: { id: authorId}},
+      }
+    })
+    res.json(result)
+  } catch (error) {
+    res.send("error")
+  }
+
 })
 
 app.listen(3000, () =>
