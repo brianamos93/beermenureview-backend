@@ -1,16 +1,33 @@
-import { PrismaClient } from '@prisma/client'
-import express from 'express'
+import express, { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
+import userRouter from "./routes/user.route";
 
 const prisma = new PrismaClient()
+
 const app = express()
 
-app.use(express.json())
+const port = 3000
 
-app.get('/users', async (req, res) => {
-  const users = await prisma.user.findMany()
-  res.json(users)
-})
+async function main() {
+  app.use(express.json())
 
-app.listen(3000, () =>
-  console.log('REST API server ready at: http://localhost:3000'),
-)
+  app.use("/api/v1/user", userRouter)
+
+  app.all("*", (req: Request, res: Response) => {
+    res.status(404).json({ error: `Route ${req.originalUrl} not found` })
+  })
+
+  app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`)
+  })
+}
+
+main()
+  .then(async () => {
+    await prisma.$connect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect
+  })
+
