@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import userRouter from "./routes/user.route";
+import beerRouter from "./routes/beer.route"
 
 const prisma = new PrismaClient()
 
@@ -12,6 +13,7 @@ async function main() {
   app.use(express.json())
 
   app.use("/api/v1/user", userRouter)
+  app.use("/api/v1/beer", beerRouter)
 
   app.all("*", (req: Request, res: Response) => {
     res.status(404).json({ error: `Route ${req.originalUrl} not found` })
@@ -31,3 +33,4 @@ main()
     await prisma.$disconnect
   })
 
+  module.exports = app

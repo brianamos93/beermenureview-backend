@@ -4,6 +4,6 @@ import userController from "../controllers/userController"
 const router = Express.Router()
 
 router.post("/signup", userController.signup)
-router.get("/users", userController.getAllUsers)
+router.get("/all", userController.getAllUsers)
 
 export default router
