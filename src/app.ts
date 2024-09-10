@@ -1,36 +1,24 @@
-import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import express from "express";
 import userRouter from "./routes/user.route";
-import beerRouter from "./routes/beer.route"
+import beerRouter from "./routes/beer.route";
+import beer2Router from "./routes/beer2.route"
 
-const prisma = new PrismaClient()
+const cors = require('cors')
+const middleware = require('./utils/middleware')
+
 
 const app = express()
 
-const port = 3000
+app.use(cors())
+app.use(express.json())
+app.use(middleware.requestLogger)
 
-async function main() {
-  app.use(express.json())
+app.use("/api/v1/user", userRouter)
+app.use("/api/v1/beer", beerRouter)
+app.use("/api/v1/beer2", beer2Router)
 
-  app.use("/api/v1/user", userRouter)
-  app.use("/api/v1/beer", beerRouter)
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
-  app.all("*", (req: Request, res: Response) => {
-    res.status(404).json({ error: `Route ${req.originalUrl} not found` })
-  })
 
-  app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`)
-  })
-}
-
-main()
-  .then(async () => {
-    await prisma.$connect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect
-  })
-
-  module.exports = app
+module.exports = app
