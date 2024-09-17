@@ -2,7 +2,7 @@ POST http://localhost:3000/api/v1/beer2/ HTTP/1.1
 Content-Type: application/json
 
 {
-	"name": "testbeer3",
+	"name": "testernow",
     "description": "This is a test beer description.",
     "origin": "Japan",
 	"authorId": "cm0jmo1hu0000e7ihbxvt9pf0",

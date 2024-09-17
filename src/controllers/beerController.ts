@@ -1,7 +1,5 @@
 import { Request, Response } from "express"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import prisma from '../utils/client'
 
 const newBeer = async ( req: Request, res: Response) => {
   const { name, description, origin, abv, ibu, authorId } = req.body
@@ -16,20 +14,50 @@ const newBeer = async ( req: Request, res: Response) => {
         ibu,
         published: false,
         author: { connect: { id: authorId}},
-      }
+      },
     })
     res.json(result)
   } catch (error) {
     res.send("error")
   }}
 
-const beerFeed = async (req: Request, res: Response) => {
+const getAllBeers = async (req: Request, res: Response) => {
+  try {
     const beers = await prisma.beer.findMany({
-      where: { published: true },
+      include: { author: true }
+
+    })
+    res.json(beers)
+  } catch (error) {
+    res.send("error")
+  }
+    
+}
+
+const publishedBeers = async (req: Request, res: Response) => {
+  try {
+    const beers = await prisma.beer.findMany()
+    res.json(beers)
+  } catch (error) {
+    res.send("error")
+  }
+    
+}
+
+const unpublishedBeers = async (req: Request, res: Response) => {
+
+  try {
+    const beers = await prisma.beer.findMany({
+      where: { 
+        published: false 
+      },
       include: { author: true }
     })
     res.json(beers)
+  } catch (error) {
+    res.send("error")
   }
+}
 
 const getOneBeer = async (req: Request, res: Response) => {
 
@@ -37,6 +65,7 @@ const getOneBeer = async (req: Request, res: Response) => {
     const { id } = req.params
     const beer = await prisma.beer.findUnique({
       where: { id: String(id) },
+      include: { author: true }
     })
     res.json(beer)
       } catch (error) {
@@ -45,8 +74,39 @@ const getOneBeer = async (req: Request, res: Response) => {
   
 }
 
+const publishBeer = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const beer = await prisma.beer.update({
+      where: { id: String(id) },
+      data: { published: true },
+    })
+    res.json(beer)
+  } catch (error) {
+    res.send("error")
+  }
+}
+
+const deleteBeer = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const beer = await prisma.beer.delete({
+      where: {
+        id: String(id)
+      },
+    })
+    res.json(beer)
+  } catch (error) {
+    res.send("error")
+  }
+}
+
 export default {
 	newBeer,
-  beerFeed,
-  getOneBeer
+  publishedBeers,
+  getOneBeer,
+  publishBeer,
+  unpublishedBeers,
+  deleteBeer,
+  getAllBeers
   }

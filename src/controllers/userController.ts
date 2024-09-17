@@ -1,7 +1,5 @@
 import { Request, Response } from "express"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import prisma from "../utils/client"
 
 
 
@@ -19,20 +17,35 @@ const signup = async (req: Request, res: Response) => {
 	} catch (error) {
 	  res.send("error")
 	}
-  
-  }
+}
   
 const getAllUsers = async (req: Request, res: Response) => {
 	try {
-		const users = await prisma.user.findMany()
+		const users = await prisma.user.findMany({
+			include: { beers: true }
+		})
 		res.json(users)
 	} catch (error) {
 	  res.send("error")
 	}
-  
-  }
+}
+
+  const getAllNormal = async (req: Request, res: Response) => {
+	try {
+		const users = await prisma.user.findMany({
+			where: {
+				role: "USER"
+			}
+		})
+		res.json(users)
+	} catch (error) {
+	  res.send("error")
+	}
+}
+
 
   export default {
 	signup,
-	getAllUsers
+	getAllUsers,
+	getAllNormal
   }
